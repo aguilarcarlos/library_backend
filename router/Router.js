@@ -33,9 +33,9 @@ module.exports = (app) => {
                         base_url: Env.DOMAIN,
                         api_url: Env.DOMAIN + API.endpoint,
                         paths: {
-                            book: "book/{book_id}",
+                            book: "books/{book_id}",
                             books: "books",
-                            category: "category/{category_id}",
+                            category: "categories/{category_id}",
                             categories: "categories"
                         }
                     }

@@ -5,7 +5,8 @@ const Env = require(path.resolve('config/env'));
 
 module.exports = (app) => {
 
-    // MIDDLEWARE
+    // MIDDLEWARES
+    // MIDDLEWARE: Authentication based key
     app.use((req, res, next) => {
         var key = Auth.getKey(req);
 
@@ -18,6 +19,12 @@ module.exports = (app) => {
             message: 'Forbidden content, please use a valid key or contact to developer to get one.',
             data: []
         })
+    });
+    // MIDDLEWARE: CORS handler
+    app.use(function(req, res, next) {
+        res.header("Access-Control-Allow-Origin", "*");
+        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        next();
     });
 
     // ROUTES

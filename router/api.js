@@ -372,7 +372,7 @@ Router.get('/category/book', (req, res) => {
     Category.find()
         .populate('books')
         .exec((err, categories) => {
-            if (err || !books) {
+            if (err || !categories) {
                 return res.json({
                     error: true,
                     message: 'Resource not available',

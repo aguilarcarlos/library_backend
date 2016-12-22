@@ -368,6 +368,26 @@ Router.route('/categories')
         });
     });
 
+Router.get('/category/book', (req, res) => {
+    Category.find()
+        .populate('books')
+        .exec((err, categories) => {
+            if (err || !books) {
+                return res.json({
+                    error: true,
+                    message: 'Resource not available',
+                    data: []
+                });
+            }
+
+            return res.json({
+                error: false,
+                message: 'Displaying category and books',
+                data: [].concat(categories)
+            });
+        });
+});
+
 Router.get('/categories/:category_id/books', (req, res) => {
     Book.find({category_id: req.params.category_id}, (err, books) => {
         if (err || !books) {
@@ -385,6 +405,8 @@ Router.get('/categories/:category_id/books', (req, res) => {
         });
     });
 });
+
+
 
 Router.route('/categories/:category_id')
 

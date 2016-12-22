@@ -28,16 +28,19 @@ module.exports = (app) => {
         res.status(200)
             .json({
                 error: false,
-                message: "Configuration file",
+                message: 'Configuration file',
                 data: [
                     {
                         base_url: Env.DOMAIN,
                         api_url: Env.DOMAIN + API.endpoint,
                         paths: {
-                            book: "books/{book_id}",
-                            books: "books",
-                            category: "categories/{category_id}",
-                            categories: "categories"
+                            book_and_category: 'category/book',
+                            book: 'books/{book_id}',
+                            books_category: '/books/category/{category_id}',
+                            books: 'books',
+                            category: 'categories/{category_id}',
+                            category_books: 'categories/{category_id}/books',
+                            categories: 'categories'
                         }
                     }
                 ]

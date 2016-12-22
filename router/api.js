@@ -20,14 +20,16 @@ const getQueryParams = (req) => {
     return params;
 };
 
-const findOrCreate = (Model, search, callBack) => {
+const findOrCreate = (Model, search, opts, callBack) => {
+    opts = opts || {};
+
     Model.findOne(search, 'name description', (err, doc) => {
         if (err)
             return callBack(null);
         else if (doc)
             return callBack(doc);
         else
-            return callBack(null, search);
+            return callBack(null, search, opts);
     });
 };
 
@@ -124,11 +126,16 @@ Router.route('/books')
         book.category_id = _.kebabCase(req.body.category);
         book.category = req.body.category;
 
-        findOrCreate(Category, {name: req.body.category}, (category, nCategory) => {
+        findOrCreate(Category, {
+            short: book.category_id
+        }, {
+            name: req.body.category,
+            short: book.category_id
+        }, (category, nCategory, opts) => {
             if (nCategory) {
                 var _category = new Category();
-                _category.name = nCategory.name;
-                _category.short = _.kebabCase(nCategory.name);
+                _category.name = opts.name;
+                _category.short = opts.short;
                 _category.description = 'Auto-generated';
                 _category.save();
             }
@@ -229,11 +236,18 @@ Router.route('/books/:book_id')
             if (req.body.category) {
                 fieldsModified.push('category');
                 book.category = req.body.category;
-                findOrCreate(Category, {name: req.body.category}, (category, nCategory) => {
+                book.category_id = _.kebabCase(book.category);
+
+                findOrCreate(Category, {
+                    short: book.category_id
+                }, {
+                    name: req.body.category,
+                    short: book.category_id
+                }, (category, nCategory, opts) => {
                     if (nCategory) {
                         var _category = new Category();
-                        _category.name = nCategory.name;
-                        _category.short = _.kebabCase(nCategory.name);
+                        _category.name = opts.name;
+                        _category.short = opts.short;
                         _category.description = 'Auto-generated';
                         _category.save();
                     }

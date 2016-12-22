@@ -122,7 +122,7 @@ Router.route('/books')
             .toISOString()
             .replace(/T/, ' ')
             .replace(/\..+/, '');
-        book.user = req.body.user ? _.trim(_.escape(req.body.poster)) : '';
+        book.user = req.body.user ? _.trim(_.escape(req.body.user)) : '';
         book.category_id = _.kebabCase(req.body.category);
         book.category = req.body.category;
 

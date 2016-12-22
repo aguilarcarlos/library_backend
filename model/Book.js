@@ -7,6 +7,7 @@ const BookSchema = new Schema({
     author: String,
     poster: String,
     category_id: String,
+    category: String,
     published_date: Date,
     user: String
 });

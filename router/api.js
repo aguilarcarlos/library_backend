@@ -2,6 +2,7 @@ const path = require('path');
 const Router = require('express').Router();
 const Book = require(path.resolve('model/Book'));
 const Category = require(path.resolve('model/Category'));
+const _ = require('lodash');
 
 const getQueryParams = (req) => {
     var params = {};
@@ -98,7 +99,7 @@ Router.route('/books')
         var requestCheck = hasRequest(req, [
             'name',
             'author',
-            'category_id',
+            'category',
             'published_date'
         ]);
 
@@ -112,23 +113,24 @@ Router.route('/books')
 
         var book = new Book();
 
-        book.name = req.body.name || '';
-        book.author = req.body.author || '';
-        book.poster = req.body.poster || 'http://lorempixel.com/g/230/300/';
+        book.name = req.body.name ? _.trim(_.escape(req.body.name)) : '';
+        book.author = req.body.author ? _.trim(_.escape(req.body.author)) : '';
+        book.poster = req.body.poster ? _.trim(_.escape(req.body.poster)) : 'http://lorempixel.com/g/230/300/';
         book.published_date = req.body.published_date || new Date()
             .toISOString()
             .replace(/T/, ' ')
             .replace(/\..+/, '');
-        book.user = req.body.user || '';
-        book.category_id = req.body.category_id || '';
+        book.user = req.body.user ? _.trim(_.escape(req.body.poster)) : '';
+        book.category_id = _.kebabCase(req.body.category);
+        book.category = req.body.category;
 
-        findOrCreate(Category, {name: req.body.category_id}, (category, nCategory) => {
+        findOrCreate(Category, {name: req.body.category}, (category, nCategory) => {
             if (nCategory) {
-                var _category = new Category;
-                _category.name = nCategory.name || '';
+                var _category = new Category();
+                _category.name = nCategory.name;
+                _category.short = _.kebabCase(nCategory.name);
                 _category.description = 'Auto-generated';
                 _category.save();
-                return;
             }
         });
 
@@ -149,6 +151,24 @@ Router.route('/books')
         });
     });
 
+Router.get('/books/category/:category_id', (req, res) => {
+    Book.find({category_id: req.params.category_id}, (err, books) => {
+        if (err || !books) {
+            return res.json({
+                error: true,
+                message: 'There are not books for this category',
+                data: []
+            });
+        }
+
+        return res.json({
+            error: false,
+            message: 'Books availables',
+            data: [].concat(books)
+        });
+    });
+});
+
 Router.route('/books/:book_id')
 
     .get((req, res) => {
@@ -156,7 +176,7 @@ Router.route('/books/:book_id')
             if (err || !book) {
                 return res.json({
                     error: true,
-                    message: 'The book not found.',
+                    message: 'The book was not found.',
                     data: []
                 });
             }
@@ -170,6 +190,21 @@ Router.route('/books/:book_id')
     })
 
     .put((req, res) => {
+        var requestCheck = hasRequest(req, [
+            'name',
+            'author',
+            'category',
+            'published_date'
+        ]);
+
+        if (!requestCheck.passed) {
+            return res.json({
+                error: true,
+                message: 'The book cannot be created, please check error messages in \'data\'.',
+                data: [].concat(requestCheck.messages)
+            });
+        }
+
         var fieldsModified = [];
 
         Book.findById(req.params.book_id, (err, book) => {
@@ -191,9 +226,18 @@ Router.route('/books/:book_id')
                 book.author = req.body.author;
             }
 
-            if (req.body.category_id) {
-                fieldsModified.push('category_id');
-                book.category_id = req.body.category_id;
+            if (req.body.category) {
+                fieldsModified.push('category');
+                book.category = req.body.category;
+                findOrCreate(Category, {name: req.body.category}, (category, nCategory) => {
+                    if (nCategory) {
+                        var _category = new Category();
+                        _category.name = nCategory.name;
+                        _category.short = _.kebabCase(nCategory.name);
+                        _category.description = 'Auto-generated';
+                        _category.save();
+                    }
+                });
             }
 
             if (req.body.published_date) {
@@ -289,8 +333,9 @@ Router.route('/categories')
     .post((req, res) => {
         var category = new Category();
 
-        category.name = req.body.name || '';
-        category.description = req.body.description || '';
+        category.name = req.body.name || 'none';
+        category.short = _.kebabCase(category.name);
+        category.description = req.body.description || 'Auto-generated';
 
         category.save((err) => {
             if (err) {
@@ -309,10 +354,28 @@ Router.route('/categories')
         });
     });
 
+Router.get('/categories/:category_id/books', (req, res) => {
+    Book.find({category_id: req.params.category_id}, (err, books) => {
+        if (err || !books) {
+            return res.json({
+                error: true,
+                message: 'There are not books for this category',
+                data: []
+            });
+        }
+
+        return res.json({
+            error: false,
+            message: 'Books availables',
+            data: [].concat(books)
+        });
+    });
+});
+
 Router.route('/categories/:category_id')
 
     .get((req, res) => {
-        Category.findById(req.params.category_id, (err, category) => {
+        Category.find({short: req.params.category_id}, (err, category) => {
             if (err || !category) {
                 return res.json({
                     error: true,
@@ -332,7 +395,7 @@ Router.route('/categories/:category_id')
     .put((req, res) => {
         var fieldsModified = [];
 
-        Category.findById(req.params.category_id, (err, category) => {
+        Category.find({short: req.params.category_id}, (err, category) => {
             if (err) {
                 return res.json({
                     error: true,

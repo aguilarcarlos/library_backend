@@ -197,21 +197,6 @@ Router.route('/books/:book_id')
     })
 
     .put((req, res) => {
-        var requestCheck = hasRequest(req, [
-            'name',
-            'author',
-            'category',
-            'published_date'
-        ]);
-
-        if (!requestCheck.passed) {
-            return res.json({
-                error: true,
-                message: 'The book cannot be created, please check error messages in \'data\'.',
-                data: [].concat(requestCheck.messages)
-            });
-        }
-
         var fieldsModified = [];
 
         Book.findById(req.params.book_id, (err, book) => {

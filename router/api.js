@@ -208,17 +208,17 @@ Router.route('/books/:book_id')
                 });
             }
 
-            if (req.body.name) {
+            if (req.body.name !== book.name) {
                 fieldsModified.push('name');
                 book.name = req.body.name;
             }
 
-            if (req.body.author) {
+            if (req.body.author !== book.author) {
                 fieldsModified.push('author');
                 book.author = req.body.author;
             }
 
-            if (req.body.category) {
+            if (req.body.category !== book.category) {
                 fieldsModified.push('category');
                 book.category = req.body.category;
                 book.category_id = _.kebabCase(book.category);
@@ -239,17 +239,17 @@ Router.route('/books/:book_id')
                 });
             }
 
-            if (req.body.published_date) {
+            if (req.body.published_date !== book.published_date) {
                 fieldsModified.push('published_date');
                 book.published_date = req.body.published_date;
             }
 
-            if (req.body.user) {
+            if (req.body.user !== book.user) {
                 fieldsModified.push('user');
                 book.user = req.body.user;
             }
 
-            if (req.body.poster) {
+            if (req.body.poster !== book.poster) {
                 fieldsModified.push('poster');
                 book.poster = req.body.poster;
             }

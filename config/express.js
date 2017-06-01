@@ -12,7 +12,10 @@ module.exports = (app) => {
             var allowedOrigins = [
                 'http://localhost:8080',
                 'http://localhost:3000',
-                'http://app1.demo.aguilarcarlos.com'
+                'http://app1.demo.aguilarcarlos.com',
+                'https://localhost:8080',
+                'https://localhost:3000',
+                'https://app1.demo.aguilarcarlos.com'
             ];
 
             if (allowedOrigins.indexOf('*') > -1)
